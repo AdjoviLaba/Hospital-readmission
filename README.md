@@ -17,7 +17,7 @@ The project implements a predictive model for hospital readmission using clinica
 
 The model is designed to work with the MIMIC-IV dataset. Due to licensing restrictions, the dataset cannot be included directly in this repository. However, you can download the preprocessed data from the following link:
 
-[Download Preprocessed MIMIC-IV Data (Google Drive)](https://drive.google.com/drive/folders/your-folder-id)
+[Download Preprocessed MIMIC-IV Data (Google Drive)](https://drive.google.com/drive/folders/1Vq7EtWqpTTfMqDoaBV54s3IbvoSoWDmV?usp=sharing)
 
 Alternatively, you can prepare your own data following these steps:
 1. Obtain access to the MIMIC-IV dataset through [PhysioNet](https://physionet.org/content/mimiciv/2.1/)
@@ -29,7 +29,7 @@ Alternatively, you can prepare your own data following these steps:
 1. Clone this repository:
 ```bash
 git clone https://github.com/AdjoviLaba/Hospital-readmission.git
-cd hospital-readmission-prediction
+cd Hospital-readmission
 ```
 
 2. Create a virtual environment and install dependencies:
