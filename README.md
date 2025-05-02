@@ -28,7 +28,7 @@ Alternatively, you can prepare your own data following these steps:
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/yourusername/hospital-readmission-prediction.git
+git clone https://github.com/AdjoviLaba/Hospital-readmission.git
 cd hospital-readmission-prediction
 ```
 
