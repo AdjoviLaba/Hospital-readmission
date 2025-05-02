@@ -9,7 +9,7 @@ import os
 import random
 import argparse
 
-from datasets import load_dataset
+import datasets as datasets_local
 import torch
 from transformers import (BertConfig, BertForTokenClassification,
                                   BertTokenizer, AutoTokenizer, AutoModel, DataCollatorWithPadding,BertModel)

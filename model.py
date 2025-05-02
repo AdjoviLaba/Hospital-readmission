@@ -3,7 +3,7 @@ from torch_geometric.nn import GATConv, Linear, to_hetero, GCNConv,HGTConv
 from torch_geometric.datasets import Planetoid
 import torch_geometric.transforms as T
 from torch_geometric.nn.pool import avg_pool_neighbor_x,max_pool_neighbor_x
-from torch_geometric.utils import scatter
+from torch_scatter import scatter  
 from torch_geometric.transforms import add_self_loops
 # from torch_geometric.nn.models import AttentiveFP
 
@@ -46,17 +46,16 @@ class CHSLM(nn.Module):
         self.mutual=selfalignment(config.hidden_size)
         self.combine = nn.Linear(args.embedding_dim*2, args.embedding_dim)
 
-    def forward(self, note_ids,full_input_ids_batch, full_segment_ids_batch, full_input_mask_batch, all_graphs):
-        out=torch.empty(size=(note_ids.shape[0],self.out_dim)).to(self.args.device)
+    def forward(self, note_ids, full_input_ids_batch, full_segment_ids_batch, full_input_mask_batch, all_graphs):
+        out = torch.empty(size=(note_ids.shape[0], self.out_dim)).to(self.args.device)
         for note_i in range(note_ids.shape[0]):
-            note_emb, note_pooler = self.bert(
+            outputs = self.bert(
                     input_ids = torch.unsqueeze(full_input_ids_batch[note_i,:], 0),
                     attention_mask = torch.unsqueeze(full_input_mask_batch[note_i,:], 0),
-                    token_type_ids = torch.unsqueeze(full_segment_ids_batch[note_i,:], 0),
-                    output_all_encoded_layers = False
+                    token_type_ids = torch.unsqueeze(full_segment_ids_batch[note_i,:], 0)
                 )
-            note_pooler = self.dropout_bert(note_pooler)            
-            note_graphs = all_graphs[note_i]
+            note_emb = outputs[0]  # Get the last hidden states
+            note_pooler = outputs[1]  # Get the pooled output
         
             all_mts = []
             all_mods = []
@@ -219,19 +218,18 @@ class MIMIC_Bert_Only(nn.Module):
 
         self.classifier = nn.Linear(config.hidden_size, 1)
 
-    def forward(self, note_ids,full_input_ids_batch,full_segment_ids_batch, full_input_mask_batch): 
-        _,note_pooler = self.bert(
+    def forward(self, note_ids, full_input_ids_batch, full_segment_ids_batch, full_input_mask_batch): 
+        outputs = self.bert(
                     input_ids=full_input_ids_batch,
                     attention_mask=full_input_mask_batch,
-                    token_type_ids=full_segment_ids_batch,
-                    output_all_encoded_layers = False
+                    token_type_ids=full_segment_ids_batch
             )
         
-
+        note_pooler = outputs[1]  # Get the pooled output
         pooled_output = self.dropout(note_pooler)
         logit = self.classifier(pooled_output)
 
         m = nn.Sigmoid()
-        logit=m(logit)
-        logit=torch.flatten(logit)
+        logit = m(logit)
+        logit = torch.flatten(logit)
         return logit

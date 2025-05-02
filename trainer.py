@@ -269,6 +269,9 @@ def acc_and_f1(preds, labels):
   }
 
 def vote_score(df, score,out):
+  if len(df) != len(score):
+     print(f"Warning: DataFrame length ({len(df)}) doesn't match score length ({len(score)})")
+     df = df.iloc[:len(score)].copy()
   df['pred_score'] = score
   df_sort = df.sort_values(by=['ID'])
   #score 
@@ -286,14 +289,18 @@ def vote_score(df, score,out):
   plt.ylabel('True positive rate')
   plt.title('ROC curve')
   plt.legend(loc='best')
-  # plt.show()
+ 
   string = 'auroc_clinicalbert.png'
+  import os
+  os.makedirs(os.path.dirname(out+string), exist_ok=True)
+    
   plt.savefig(out+string)
-  # plt.savefig(os.path.join(out, string))
+
+
 
   return fpr, tpr, df_out,auc_score
 
-def pr_curve_plot(y, y_score,out):
+def pr_curve_plot(y, y_score, out):
   precision, recall, _ = precision_recall_curve(y, y_score)
   area = auc(recall,precision)
   step_kwargs = ({'step': 'post'}
@@ -312,13 +319,23 @@ def pr_curve_plot(y, y_score,out):
             area))
   
   string = 'auprc_clinicalbert.png'
+  
+  # Add this to create the directory
+  import os
+  os.makedirs(os.path.dirname(out), exist_ok=True)
+  
   plt.savefig(out+string)
 
-  # plt.savefig(os.path.join(out, string))
   return area
 
 
 def vote_pr_curve(df, score, out):
+  # If dataframe length doesn't match score length
+  if len(df) != len(score):
+    print(f"Warning: DataFrame length ({len(df)}) doesn't match score length ({len(score)})")
+    # Use only the first len(score) rows of the dataframe
+    df = df.iloc[:len(score)].copy()
+    
   df['pred_score'] = score
   df_sort = df.sort_values(by=['ID'])
   #score 
@@ -328,6 +345,10 @@ def vote_pr_curve(df, score, out):
   precision, recall, thres = precision_recall_curve(y, temp)
   pr_thres = pd.DataFrame(data =  list(zip(precision, recall, thres)), columns = ['prec','recall','thres'])
   vote_df = pd.DataFrame(data =  list(zip(temp, y)), columns = ['score','label'])
+  
+  # Create output directory if it doesn't exist
+  import os
+  os.makedirs(os.path.dirname(out), exist_ok=True)
   
   area=pr_curve_plot(y, temp, out)
   
